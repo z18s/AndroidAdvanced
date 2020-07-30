@@ -1,8 +1,14 @@
 package com.example.weatherapp;
 
+import android.annotation.SuppressLint;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
@@ -18,20 +24,31 @@ import com.example.weatherapp.ui.home.HomeFragment;
 import com.example.weatherapp.ui.settings.SettingsFragment;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
-import com.google.android.material.snackbar.Snackbar;
 
-public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, SensorEventListener {
 
     private MenuItem checkedMenuItem;
+
+    private SensorService sensorService;
+    private Sensor tempSensor;
+    private Sensor humSensor;
+    private float tempVal = 0.0f;
+    private float humVal = 0.0f;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        initSensorService();
+
         Toolbar toolbar = initToolbar();
         initFab();
         initDrawer(toolbar);
+    }
+
+    private void initSensorService() {
+        sensorService = new SensorService(this);
     }
 
     private Toolbar initToolbar() {
@@ -42,9 +59,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private void initFab() {
         FloatingActionButton fab = findViewById(R.id.fab);
-        fab.setOnClickListener((view) -> Snackbar.make(view, "Replace with your own action",
-                Snackbar.LENGTH_LONG)
-                .setAction("Action", null).show());
+        fab.setOnClickListener((view) -> setUpdatedValues());
     }
 
     private void initDrawer(Toolbar toolbar) {
@@ -121,5 +136,51 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             replaceFragmentTransaction(new SettingsFragment());
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        initTempSensor();
+        initHumSensor();
+    }
+
+    private void initTempSensor() {
+        tempSensor = sensorService.getTemperatureSensor();
+        if (tempSensor != null) {
+            sensorService.getSensorManager().registerListener(this, tempSensor, SensorManager.SENSOR_DELAY_NORMAL);
+        }
+    }
+
+    private void initHumSensor() {
+        humSensor = sensorService.getHumiditySensor();
+        if (humSensor != null) {
+            sensorService.getSensorManager().registerListener(this, humSensor, SensorManager.SENSOR_DELAY_NORMAL);
+        }
+    }
+
+    @SuppressLint("DefaultLocale")
+    private void setUpdatedValues() {
+        TextView textView = findViewById(R.id.text_home);
+        textView.setText(String.format("Temperature: %.2f %n Humidity: %.2f", tempVal, humVal));
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        sensorService.getSensorManager().unregisterListener(this);
+    }
+
+    @Override
+    public void onSensorChanged(SensorEvent sensorEvent) {
+        if (tempSensor.equals(sensorEvent.sensor)) {
+            tempVal = sensorEvent.values[0];
+        } else if (humSensor.equals(sensorEvent.sensor)) {
+            humVal = sensorEvent.values[0];
+        }
+    }
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int i) {
     }
 }
