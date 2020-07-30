@@ -54,11 +54,11 @@ public class SensorValues extends Observable {
 
     @SuppressLint("DefaultLocale")
     public String getTempText() {
-        return String.format("Temperature: %.2f", tempVal);
+        return String.format("Temperature: %.1f °C", tempVal);
     }
 
     @SuppressLint("DefaultLocale")
     public String getHumText() {
-        return String.format("Humidity: %.2f", humVal);
+        return String.format("Humidity: %.1f %%", humVal);
     }
 }
