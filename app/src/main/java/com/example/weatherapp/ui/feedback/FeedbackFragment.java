@@ -1,4 +1,4 @@
-package com.example.weatherapp.ui.home;
+package com.example.weatherapp.ui.feedback;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -13,20 +13,20 @@ import androidx.lifecycle.ViewModelProviders;
 
 import com.example.weatherapp.R;
 
-public class HomeFragment extends Fragment {
+public class FeedbackFragment extends Fragment {
 
-    private HomeViewModel homeViewModel;
+    private FeedbackViewModel feedbackViewModel;
 
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_home, container, false);
+        return inflater.inflate(R.layout.fragment_feedback, container, false);
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        homeViewModel = ViewModelProviders.of(this).get(HomeViewModel.class);
-        final TextView textView = view.findViewById(R.id.text_home);
-        homeViewModel.getText().observe(getViewLifecycleOwner(), textView::setText);
+        feedbackViewModel = ViewModelProviders.of(this).get(FeedbackViewModel.class);
+        final TextView textView = view.findViewById(R.id.text_feedback);
+        feedbackViewModel.getText().observe(getViewLifecycleOwner(), textView::setText);
     }
 }
