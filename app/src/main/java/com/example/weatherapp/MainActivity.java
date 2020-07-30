@@ -3,7 +3,6 @@ package com.example.weatherapp;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
@@ -12,9 +11,6 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
-import androidx.navigation.NavController;
-import androidx.navigation.Navigation;
-import androidx.navigation.ui.NavigationUI;
 
 import com.example.weatherapp.ui.about.AboutFragment;
 import com.example.weatherapp.ui.feedback.FeedbackFragment;
@@ -46,14 +42,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private void initFab() {
         FloatingActionButton fab = findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action",
-                        Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
+        fab.setOnClickListener((view) -> Snackbar.make(view, "Replace with your own action",
+                Snackbar.LENGTH_LONG)
+                .setAction("Action", null).show());
     }
 
     private void initDrawer(Toolbar toolbar) {
@@ -73,31 +64,23 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         checkedMenuItem = item;
         markSelectedMenuItem(checkedMenuItem);
 
-        int id = item.getItemId();
-        Class fragmentClass = null;
+        int itemId = item.getItemId();
 
-        if (id == R.id.nav_home) {
-            fragmentClass = HomeFragment.class;
-        } else if (id == R.id.nav_feedback) {
-            fragmentClass = FeedbackFragment.class;
-        } else if (id == R.id.nav_about) {
-            fragmentClass = AboutFragment.class;
-        }
-
-        try {
-            Fragment fragment = getFragmentInstance(fragmentClass);
-            replaceFragmentTransaction(fragment);
-        } catch (IllegalAccessException | InstantiationException e) {
-            e.printStackTrace();
+        switch (itemId) {
+            case (R.id.nav_home):
+                replaceFragmentTransaction(new HomeFragment());
+                break;
+            case (R.id.nav_feedback):
+                replaceFragmentTransaction(new FeedbackFragment());
+                break;
+            case (R.id.nav_about):
+                replaceFragmentTransaction(new AboutFragment());
+                break;
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
-    }
-
-    private Fragment getFragmentInstance(Class fragmentClass) throws InstantiationException, IllegalAccessException {
-        return (Fragment) fragmentClass.newInstance();
     }
 
     private void replaceFragmentTransaction(Fragment fragment) {
@@ -127,23 +110,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.main, menu);
-        onOptionsMenuItemSelected(menu);
         return true;
     }
 
-    private void onOptionsMenuItemSelected(Menu menu) {
-        MenuItem settings = menu.findItem(R.id.action_settings);
-        settings.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
-            @Override
-            public boolean onMenuItemClick(MenuItem menuItem) {
-                try {
-                    Fragment fragment = getFragmentInstance(SettingsFragment.class);
-                    replaceFragmentTransaction(fragment);
-                } catch (IllegalAccessException | InstantiationException e) {
-                    e.printStackTrace();
-                }
-                return true;
-            }
-        });
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        int itemId = item.getItemId();
+
+        if (itemId == R.id.action_settings) {
+            replaceFragmentTransaction(new SettingsFragment());
+        }
+        return super.onOptionsItemSelected(item);
     }
 }
