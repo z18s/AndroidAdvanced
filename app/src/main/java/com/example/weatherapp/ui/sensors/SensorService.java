@@ -1,8 +1,9 @@
-package com.example.weatherapp;
+package com.example.weatherapp.ui.sensors;
 
 import android.app.Activity;
 import android.content.Context;
 import android.hardware.Sensor;
+import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 
 import java.util.List;
@@ -22,6 +23,14 @@ public class SensorService {
 
     private void initSensorsList() {
         deviceSensors = sensorManager.getSensorList(Sensor.TYPE_ALL);
+    }
+
+    public void registerListener(SensorEventListener sensorEventListener, Sensor sensor) {
+        sensorManager.registerListener(sensorEventListener, sensor, SensorManager.SENSOR_DELAY_NORMAL);
+    }
+
+    public void unregisterListener(SensorEventListener sensorEventListener) {
+        sensorManager.unregisterListener(sensorEventListener);
     }
 
     public Sensor getTemperatureSensor() {
