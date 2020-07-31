@@ -69,12 +69,20 @@ public class SensorValues extends Observable {
 
     @SuppressLint("DefaultLocale")
     public String getTempText() {
-        return String.format("Temperature: %.1f °C", tempValue);
+        if (tempSensor == null) {
+            return "Temperature: N/A";
+        } else {
+            return String.format("Temperature: %.1f °C", tempValue);
+        }
     }
 
     @SuppressLint("DefaultLocale")
     public String getHumText() {
-        return String.format("Humidity: %.1f %%", humValue);
+        if (humSensor == null) {
+            return "Humidity: N/A";
+        } else {
+            return String.format("Humidity: %.1f %%", humValue);
+        }
     }
 
     public float getTempValue() {

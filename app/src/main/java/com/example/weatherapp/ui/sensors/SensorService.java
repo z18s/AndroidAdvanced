@@ -44,4 +44,8 @@ public class SensorService {
     public SensorManager getSensorManager() {
         return sensorManager;
     }
+
+    public List<Sensor> getDeviceSensors() {
+        return deviceSensors;
+    }
 }
