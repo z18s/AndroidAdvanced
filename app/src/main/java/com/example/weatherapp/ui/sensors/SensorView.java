@@ -19,11 +19,6 @@ public class SensorView extends View implements Observer {
 
     private SensorValues sensorValues;
 
-    private final float HUM_VALUE_MIN = 0.0f;
-    private final float HUM_VALUE_MAX = 100.0f;
-    private final float TEMP_VALUE_MIN = -273.15f;
-    private final float TEMP_VALUE_MAX = 100.0f;
-
     private Paint paintText;
     private Paint paintBackground;
     private Paint paintBorder;
@@ -103,14 +98,8 @@ public class SensorView extends View implements Observer {
 
         drawGraphBackground(canvas, grLeft, grTop, grRight, grBottom);
 
-        float tempValDegree;
-        if (sensorValues.getTempVal() >= 0) {
-            tempValDegree = -sensorValues.getTempVal() * 360 / (TEMP_VALUE_MAX - 0);
-            drawGraphMain(canvas, grLeft, grTop, grRight, grBottom, tempValDegree, paintGraphTempPlus);
-        } else {
-            tempValDegree = -sensorValues.getTempVal() * 360 / (0 - TEMP_VALUE_MIN);
-            drawGraphMain(canvas, grLeft, grTop, grRight, grBottom, tempValDegree, paintGraphTempMinus);
-        }
+        Paint paintGraphTemp = (sensorValues.getTempValue() >= 0) ? paintGraphTempPlus : paintGraphTempMinus;
+        drawGraphMain(canvas, grLeft, grTop, grRight, grBottom, sensorValues.getTempValueAngle(), paintGraphTemp);
 
         // Humidity
         canvas.drawText(sensorValues.getHumText(), 10, 200, paintText);
@@ -122,8 +111,7 @@ public class SensorView extends View implements Observer {
 
         drawGraphBackground(canvas, grLeft, grTop, grRight, grBottom);
 
-        float humValDegree = -sensorValues.getHumVal() * 360 / (HUM_VALUE_MAX - HUM_VALUE_MIN);
-        drawGraphMain(canvas, grLeft, grTop, grRight, grBottom, humValDegree, paintGraphHumidity);
+        drawGraphMain(canvas, grLeft, grTop, grRight, grBottom, sensorValues.getHumValueAngle(), paintGraphHumidity);
     }
 
     private void drawGraphBackground(Canvas canvas, float left, float top, float right, float bottom) {
