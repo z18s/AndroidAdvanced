@@ -61,4 +61,12 @@ public class SensorValues extends Observable {
     public String getHumText() {
         return String.format("Humidity: %.1f %%", humVal);
     }
+
+    public float getTempVal() {
+        return tempVal;
+    }
+
+    public float getHumVal() {
+        return humVal;
+    }
 }

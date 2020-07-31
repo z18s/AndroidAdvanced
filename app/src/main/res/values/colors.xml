@@ -3,4 +3,10 @@
     <color name="colorPrimary">#6200EE</color>
     <color name="colorPrimaryDark">#3700B3</color>
     <color name="colorAccent">#03DAC5</color>
+
+    <color name="colorPaintBackground">#CECECE</color>
+    <color name="colorPaintBorder">#464646</color>
+    <color name="colorPaintTempPlus">#F34723</color>
+    <color name="colorPaintTempMinus">#4B61D1</color>
+    <color name="colorPaintHumidity">#007BA7</color>
 </resources>
