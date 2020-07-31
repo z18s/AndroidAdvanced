@@ -21,7 +21,7 @@ public class SensorView extends View implements Observer {
 
     private final float HUM_VALUE_MIN = 0.0f;
     private final float HUM_VALUE_MAX = 100.0f;
-    private final float TEMP_VALUE_MIN = -273.1f;
+    private final float TEMP_VALUE_MIN = -273.15f;
     private final float TEMP_VALUE_MAX = 100.0f;
 
     private Paint paintText;
@@ -132,7 +132,7 @@ public class SensorView extends View implements Observer {
     }
 
     private void drawGraphMain(Canvas canvas, float left, float top, float right, float bottom, float angle, Paint paint) {
-        canvas.drawArc(left+7, top+7, right-7, bottom-7, 270, angle, true, paint);
+        canvas.drawArc(left + 7, top + 7, right - 7, bottom - 7, 270, angle, true, paint);
     }
 
     @Override
