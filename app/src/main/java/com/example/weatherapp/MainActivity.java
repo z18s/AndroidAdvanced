@@ -1,5 +1,8 @@
 package com.example.weatherapp;
 
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -15,23 +18,32 @@ import androidx.fragment.app.Fragment;
 import com.example.weatherapp.ui.about.AboutFragment;
 import com.example.weatherapp.ui.feedback.FeedbackFragment;
 import com.example.weatherapp.ui.home.HomeFragment;
+import com.example.weatherapp.ui.sensors.SensorValues;
+import com.example.weatherapp.ui.sensors.SensorValuesHolder;
 import com.example.weatherapp.ui.settings.SettingsFragment;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
-import com.google.android.material.snackbar.Snackbar;
 
-public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, SensorEventListener, SensorValuesHolder {
 
     private MenuItem checkedMenuItem;
+
+    private SensorValues sensorValues;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        initSensors();
+
         Toolbar toolbar = initToolbar();
         initFab();
         initDrawer(toolbar);
+    }
+
+    private void initSensors() {
+        sensorValues = new SensorValues(this);
     }
 
     private Toolbar initToolbar() {
@@ -42,9 +54,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private void initFab() {
         FloatingActionButton fab = findViewById(R.id.fab);
-        fab.setOnClickListener((view) -> Snackbar.make(view, "Replace with your own action",
-                Snackbar.LENGTH_LONG)
-                .setAction("Action", null).show());
+        fab.setOnClickListener(view -> {
+
+        });
     }
 
     private void initDrawer(Toolbar toolbar) {
@@ -78,7 +90,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 break;
         }
 
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
@@ -121,5 +133,31 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             replaceFragmentTransaction(new SettingsFragment());
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        sensorValues.registerListeners(this);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        sensorValues.unregisterListeners(this);
+    }
+
+    @Override
+    public void onSensorChanged(SensorEvent sensorEvent) {
+        sensorValues.update(sensorEvent);
+    }
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int i) {
+    }
+
+    @Override
+    public SensorValues getSensorValues() {
+        return sensorValues;
     }
 }
