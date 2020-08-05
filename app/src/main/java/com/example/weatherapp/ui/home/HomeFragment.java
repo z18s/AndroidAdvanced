@@ -1,5 +1,6 @@
 package com.example.weatherapp.ui.home;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,6 +13,7 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProviders;
 
 import com.example.weatherapp.R;
+import com.example.weatherapp.model.weather.IWorker;
 
 public class HomeFragment extends Fragment {
 
@@ -26,7 +28,19 @@ public class HomeFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         homeViewModel = ViewModelProviders.of(this).get(HomeViewModel.class);
-        final TextView textView = view.findViewById(R.id.text_home);
-        homeViewModel.getText().observe(getViewLifecycleOwner(), textView::setText);
+
+        final TextView homeText = view.findViewById(R.id.text_home);
+        homeViewModel.getText().observe(getViewLifecycleOwner(), homeText::setText);
+
+        final TextView homeTemp = view.findViewById(R.id.temp_value);
+        homeViewModel.getTemp().observe(getViewLifecycleOwner(), homeTemp::setText);
+    }
+
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+
+        IWorker worker = (IWorker) context;
+        worker.startOneTimeWorker();
     }
 }
