@@ -1,4 +1,4 @@
-package com.example.weatherapp.ui.sensors;
+package com.example.weatherapp.model.sensors;
 
 import android.app.Activity;
 import android.content.Context;

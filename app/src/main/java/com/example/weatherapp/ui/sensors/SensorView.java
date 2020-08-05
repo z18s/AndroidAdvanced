@@ -11,6 +11,8 @@ import android.view.View;
 import androidx.annotation.Nullable;
 
 import com.example.weatherapp.R;
+import com.example.weatherapp.model.sensors.SensorValues;
+import com.example.weatherapp.model.sensors.SensorValuesHolder;
 
 import java.util.Observable;
 import java.util.Observer;
