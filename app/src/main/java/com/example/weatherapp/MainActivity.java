@@ -6,6 +6,7 @@ import android.hardware.SensorEventListener;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
@@ -14,17 +15,27 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
+import androidx.work.OneTimeWorkRequest;
+import androidx.work.PeriodicWorkRequest;
+import androidx.work.WorkInfo;
+import androidx.work.WorkManager;
+import androidx.work.WorkRequest;
 
+import static com.example.weatherapp.model.DataKey.*;
+import com.example.weatherapp.model.sensors.SensorValues;
+import com.example.weatherapp.model.sensors.SensorValuesHolder;
+import com.example.weatherapp.model.weather.IWorker;
+import com.example.weatherapp.model.weather.UpdateWorker;
 import com.example.weatherapp.ui.about.AboutFragment;
 import com.example.weatherapp.ui.feedback.FeedbackFragment;
 import com.example.weatherapp.ui.home.HomeFragment;
-import com.example.weatherapp.model.sensors.SensorValues;
-import com.example.weatherapp.model.sensors.SensorValuesHolder;
 import com.example.weatherapp.ui.settings.SettingsFragment;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 
-public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, SensorEventListener, SensorValuesHolder {
+import java.util.concurrent.TimeUnit;
+
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, SensorEventListener, SensorValuesHolder, IWorker {
 
     private MenuItem checkedMenuItem;
 
@@ -40,6 +51,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         Toolbar toolbar = initToolbar();
         initFab();
         initDrawer(toolbar);
+
+        startPeriodicWorker();
     }
 
     private void initSensors() {
@@ -68,6 +81,39 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         drawer.addDrawerListener(toggle);
         toggle.syncState();
         navigationView.setNavigationItemSelectedListener(this);
+    }
+
+    public void startOneTimeWorker() {
+        OneTimeWorkRequest workRequest = new OneTimeWorkRequest
+                .Builder(UpdateWorker.class)
+                .setInitialDelay(UpdateWorker.WORKER_ONETIME_DELAY_SEC, TimeUnit.SECONDS)
+                .addTag(UpdateWorker.WORKER_ONETIME_TAG)
+                .build();
+        WorkManager.getInstance(getApplicationContext()).enqueue(workRequest);
+        onWorkerUpdated(workRequest);
+    }
+
+    private void startPeriodicWorker() {
+        PeriodicWorkRequest workPeriodicRequest = new PeriodicWorkRequest
+                .Builder(UpdateWorker.class, UpdateWorker.WORKER_PERIODIC_INTERVAL_MIN, TimeUnit.MINUTES)
+                .addTag(UpdateWorker.WORKER_PERIODIC_TAG)
+                .build();
+        WorkManager.getInstance(getApplicationContext()).enqueue(workPeriodicRequest);
+        onWorkerUpdated(workPeriodicRequest);
+    }
+
+    private void onWorkerUpdated(WorkRequest workRequest) {
+        WorkManager.getInstance(getApplicationContext()).getWorkInfoByIdLiveData(workRequest.getId()).observe(this, workInfo -> {
+            if (workInfo.getState() == WorkInfo.State.SUCCEEDED) {
+                TextView homeTemp = findViewById(R.id.temp_value);
+                String temperature = workInfo.getOutputData().getString(TEMPERATURE.getType());
+                homeTemp.setText(temperature);
+            }
+        });
+    }
+
+    private void cancelWorker(String tag) {
+        WorkManager.getInstance(getApplicationContext()).getWorkInfosByTagLiveData(tag);
     }
 
     @Override
@@ -139,12 +185,20 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public void onResume() {
         super.onResume();
         sensorValues.registerListeners(this);
+        startOneTimeWorker();
     }
 
     @Override
     public void onPause() {
         super.onPause();
         sensorValues.unregisterListeners(this);
+        cancelWorker(UpdateWorker.WORKER_ONETIME_TAG);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        cancelWorker(UpdateWorker.WORKER_PERIODIC_TAG);
     }
 
     @Override
