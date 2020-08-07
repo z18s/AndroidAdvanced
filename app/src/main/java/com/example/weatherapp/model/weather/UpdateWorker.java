@@ -26,7 +26,7 @@ public class UpdateWorker extends Worker {
     private static String cityName = "London,uk";
 
     private static OpenWeather openWeather = null;
-    private static boolean isUpdated = false;
+    private static volatile boolean isUpdated = false;
 
     public UpdateWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
         super(context, workerParams);
@@ -40,9 +40,12 @@ public class UpdateWorker extends Worker {
         if (openWeather == null) {
             initRetrofit();
         }
+
         requestRetrofit(cityName);
 
-        while (!isUpdated) ;
+        while (!isUpdated) {
+            Thread.yield();
+        }
 
         return Result.success();
     }
@@ -54,11 +57,11 @@ public class UpdateWorker extends Worker {
     }
 
     private void initRetrofit() {
-    // HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
-    // logging.setLevel(HttpLoggingInterceptor.Level.BODY);
-    //
-    // OkHttpClient.Builder httpClient = new OkHttpClient.Builder();
-    // httpClient.addInterceptor(logging);
+        // HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
+        // logging.setLevel(HttpLoggingInterceptor.Level.BODY);
+        //
+        // OkHttpClient.Builder httpClient = new OkHttpClient.Builder();
+        // httpClient.addInterceptor(logging);
 
         Log.d("DEBUG_UpdateWorker", "initRetrofit");
 
@@ -83,23 +86,23 @@ public class UpdateWorker extends Worker {
 
                         Log.d("DEBUG_UpdateWorker", "requestRetrofit.onResponse");
 
-                        if (response.body() != null) {
+                        WeatherRequest weatherRequest = response.body();
+                        if (weatherRequest != null) {
 
-                            String cityName = response.body().getName();
-                            String countryName = response.body().getSys().getCountry();
+                            String cityName = weatherRequest.getName();
+                            String countryName = weatherRequest.getSys().getCountry();
                             WeatherValues.getInstance().setCityName(cityName + ", " + countryName);
 
-                            float temp = response.body().getMain().getTemp() + WeatherValues.ABSOLUTE_ZERO_TEMP;
+                            float temp = weatherRequest.getMain().getTemp() + WeatherValues.ABSOLUTE_ZERO_TEMP;
                             WeatherValues.getInstance().setTempValue(temp);
 
-                            String iconName = response.body().getWeather().get(0).getIcon();
+                            String iconName = weatherRequest.getWeather().get(0).getIcon();
                             WeatherValues.getInstance().setIconName(iconName);
 
                             Log.d("DEBUG_UpdateWorker", "requestRetrofit.onResponse - OK!");
                         }
 
                         isUpdated = true;
-
                     }
 
                     @Override
