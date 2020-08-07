@@ -52,7 +52,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         initFab();
         initDrawer(toolbar);
 
-        startPeriodicWorker();
+        //startPeriodicWorker();
     }
 
     private void initSensors() {
@@ -93,6 +93,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         onWorkerUpdated(workRequest);
     }
 
+    public void cancelOneTimeWorker() {
+        cancelWorker(UpdateWorker.WORKER_ONETIME_TAG);
+    }
+
     private void startPeriodicWorker() {
         PeriodicWorkRequest workPeriodicRequest = new PeriodicWorkRequest
                 .Builder(UpdateWorker.class, UpdateWorker.WORKER_PERIODIC_INTERVAL_MIN, TimeUnit.MINUTES)
@@ -100,6 +104,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 .build();
         WorkManager.getInstance(getApplicationContext()).enqueue(workPeriodicRequest);
         onWorkerUpdated(workPeriodicRequest);
+    }
+
+    public void cancelPeriodicWorker() {
+        cancelWorker(UpdateWorker.WORKER_PERIODIC_TAG);
     }
 
     private void onWorkerUpdated(WorkRequest workRequest) {
@@ -185,20 +193,18 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public void onResume() {
         super.onResume();
         sensorValues.registerListeners(this);
-        startOneTimeWorker();
     }
 
     @Override
     public void onPause() {
         super.onPause();
         sensorValues.unregisterListeners(this);
-        cancelWorker(UpdateWorker.WORKER_ONETIME_TAG);
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        cancelWorker(UpdateWorker.WORKER_PERIODIC_TAG);
+        cancelPeriodicWorker();
     }
 
     @Override
