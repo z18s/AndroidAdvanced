@@ -13,9 +13,9 @@ public class HomeViewModel extends ViewModel {
 
     public HomeViewModel() {
         mText = new MutableLiveData<>();
-        mText.setValue("My city");
+        mText.setValue(WeatherValues.getInstance().getCityName());
         mTemp = new MutableLiveData<>();
-        mTemp.setValue(WeatherValues.lastSavedTemp);
+        mTemp.setValue(WeatherValues.getInstance().getTempString());
     }
 
     public LiveData<String> getText() {
