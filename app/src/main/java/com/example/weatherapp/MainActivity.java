@@ -253,8 +253,4 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public SensorValues getSensorValues() {
         return sensorValues;
     }
-
-    private void log(String text) {
-        Log.d("DEBUG_MainActivity", text);
-    }
 }
