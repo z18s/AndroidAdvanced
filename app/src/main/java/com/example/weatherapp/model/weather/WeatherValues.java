@@ -5,7 +5,7 @@ import android.annotation.SuppressLint;
 public class WeatherValues {
     private static final WeatherValues instance = new WeatherValues();
 
-    public static final float ABSOLUTE_ZERO_TEMP = -273.15f;
+    private final float ABSOLUTE_ZERO_TEMP = -273.15f;
 
     private volatile String cityName;
     private volatile float tempValue;
@@ -44,7 +44,7 @@ public class WeatherValues {
 
     @SuppressLint("DefaultLocale")
     public String getTempString() {
-        return String.format("Temperature: %.1f", tempValue);
+        return String.format("Temperature: %.1f", tempValue + ABSOLUTE_ZERO_TEMP);
     }
 
     public String getIconUrl() {

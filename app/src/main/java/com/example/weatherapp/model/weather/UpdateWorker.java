@@ -94,8 +94,8 @@ public class UpdateWorker extends Worker {
                             String countryName = weatherRequest.getSys().getCountry();
                             WeatherValues.getInstance().setCityName(cityName + ", " + countryName);
 
-                            float temp = weatherRequest.getMain().getTemp() + WeatherValues.ABSOLUTE_ZERO_TEMP;
-                            WeatherValues.getInstance().setTempValue(temp);
+                            float tempValue = weatherRequest.getMain().getTemp();
+                            WeatherValues.getInstance().setTempValue(tempValue);
 
                             String iconName = weatherRequest.getWeather().get(0).getIcon();
                             WeatherValues.getInstance().setIconName(iconName);
