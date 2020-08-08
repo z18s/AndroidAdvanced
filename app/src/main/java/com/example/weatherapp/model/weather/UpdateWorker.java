@@ -37,6 +37,8 @@ public class UpdateWorker extends Worker {
     public Result doWork() {
         Log.d("DEBUG_UpdateWorker", "doWork");
 
+        isUpdated = false;
+
         if (openWeather == null) {
             initRetrofit();
         }
@@ -76,7 +78,6 @@ public class UpdateWorker extends Worker {
     private void requestRetrofit(String city) {
 
         Log.d("DEBUG_UpdateWorker", "requestRetrofit");
-        isUpdated = false;
 
         openWeather.loadWeather(city, KEY_API)
                 .enqueue(new Callback<WeatherRequest>() {
