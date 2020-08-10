@@ -1,5 +1,7 @@
 package com.example.weatherapp.model.weather;
 
+import android.util.Log;
+
 import com.example.weatherapp.model.data.Clouds;
 import com.example.weatherapp.model.data.Coord;
 import com.example.weatherapp.model.data.Main;
@@ -52,6 +54,10 @@ public class WeatherRequest {
     @SerializedName("cod")
     @Expose
     private Integer cod;
+
+    public WeatherRequest() {
+        Log.d("DEBUG_WeatherRequest", "constructor");
+    }
 
     public Coord getCoord() {
         return coord;

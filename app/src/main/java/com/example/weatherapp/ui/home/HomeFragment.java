@@ -2,6 +2,7 @@ package com.example.weatherapp.ui.home;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,6 +20,8 @@ public class HomeFragment extends Fragment {
 
     private HomeViewModel homeViewModel;
 
+    IWorker worker;
+
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_home, container, false);
     }
@@ -29,18 +32,30 @@ public class HomeFragment extends Fragment {
 
         homeViewModel = ViewModelProviders.of(this).get(HomeViewModel.class);
 
-        final TextView homeText = view.findViewById(R.id.text_home);
+        TextView homeText = view.findViewById(R.id.text_home);
         homeViewModel.getText().observe(getViewLifecycleOwner(), homeText::setText);
 
-        final TextView homeTemp = view.findViewById(R.id.temp_value);
+        TextView homeTemp = view.findViewById(R.id.temp_value);
         homeViewModel.getTemp().observe(getViewLifecycleOwner(), homeTemp::setText);
+
+        Log.d("DEBUG_HomeFragment", "onViewCreated");
     }
 
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
 
-        IWorker worker = (IWorker) context;
+        worker = (IWorker) context;
         worker.startOneTimeWorker();
+        Log.d("DEBUG_HomeFragment", "startOneTimeWorker");
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        if (worker != null) {
+            worker.cancelOneTimeWorker();
+            Log.d("DEBUG_HomeFragment", "cancelOneTimeWorker");
+        }
     }
 }

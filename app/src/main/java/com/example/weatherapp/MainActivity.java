@@ -4,8 +4,10 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -21,17 +23,18 @@ import androidx.work.WorkInfo;
 import androidx.work.WorkManager;
 import androidx.work.WorkRequest;
 
-import static com.example.weatherapp.model.DataKey.*;
 import com.example.weatherapp.model.sensors.SensorValues;
 import com.example.weatherapp.model.sensors.SensorValuesHolder;
 import com.example.weatherapp.model.weather.IWorker;
 import com.example.weatherapp.model.weather.UpdateWorker;
+import com.example.weatherapp.model.weather.WeatherValues;
 import com.example.weatherapp.ui.about.AboutFragment;
 import com.example.weatherapp.ui.feedback.FeedbackFragment;
 import com.example.weatherapp.ui.home.HomeFragment;
 import com.example.weatherapp.ui.settings.SettingsFragment;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
+import com.squareup.picasso.Picasso;
 
 import java.util.concurrent.TimeUnit;
 
@@ -111,13 +114,43 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     private void onWorkerUpdated(WorkRequest workRequest) {
-        WorkManager.getInstance(getApplicationContext()).getWorkInfoByIdLiveData(workRequest.getId()).observe(this, workInfo -> {
-            if (workInfo.getState() == WorkInfo.State.SUCCEEDED) {
-                TextView homeTemp = findViewById(R.id.temp_value);
-                String temperature = workInfo.getOutputData().getString(TEMPERATURE.getType());
-                homeTemp.setText(temperature);
-            }
-        });
+        WorkManager.getInstance(getApplicationContext())
+                .getWorkInfoByIdLiveData(workRequest.getId())
+                .observe(this, workInfo -> {
+
+                    Log.d("DEBUG_MainActivity", "onChanged - " + workInfo.getState());
+
+                    if (workInfo.getState() == WorkInfo.State.SUCCEEDED) {
+
+                        Log.d("DEBUG_MainActivity", "updateValues");
+                        updateValues();
+                    }
+                });
+    }
+
+    public void updateValues() {
+        String cityName = WeatherValues.getInstance().getCityName();
+        Log.d("DEBUG_MainActivity", "updateValues.cityName = " + cityName);
+
+        String temperature = WeatherValues.getInstance().getTempString();
+        Log.d("DEBUG_MainActivity", "updateValues.temperature = " + temperature);
+
+        String iconUrl = WeatherValues.getInstance().getIconUrl();
+        Log.d("DEBUG_MainActivity", "updateValues.iconUrl = " + iconUrl);
+
+        setTextOnTextView(R.id.text_home, cityName);
+        setTextOnTextView(R.id.temp_value, temperature);
+        setIconOnImageView(R.id.temp_pic, iconUrl);
+    }
+
+    private void setTextOnTextView(int viewId, String text) {
+        ((TextView) findViewById(viewId)).setText(text);
+    }
+
+    private void setIconOnImageView(int viewId, String url) {
+        Picasso.get()
+                .load(url)
+                .into((ImageView) findViewById(viewId));
     }
 
     private void cancelWorker(String tag) {
