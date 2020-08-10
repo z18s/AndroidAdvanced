@@ -8,7 +8,7 @@ public class WeatherValues {
     private final float ABSOLUTE_ZERO_TEMP = -273.15f;
 
     private volatile String cityName;
-    private volatile float tempValue;
+    private volatile float tempValue = -1.0f;
     private volatile String iconName;
 
     private WeatherValues() {
@@ -44,7 +44,11 @@ public class WeatherValues {
 
     @SuppressLint("DefaultLocale")
     public String getTempString() {
-        return String.format("Temperature: %.1f", tempValue + ABSOLUTE_ZERO_TEMP);
+        if (tempValue == -1.0f) {
+            return "N/A";
+        } else {
+            return String.format("Temperature: %.1f", tempValue + ABSOLUTE_ZERO_TEMP);
+        }
     }
 
     public String getIconUrl() {
