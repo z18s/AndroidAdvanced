@@ -1,5 +1,7 @@
 package com.example.weatherapp;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -27,9 +29,11 @@ import com.example.weatherapp.model.sensors.SensorValues;
 import com.example.weatherapp.model.sensors.SensorValuesHolder;
 import com.example.weatherapp.model.weather.IWorker;
 import com.example.weatherapp.model.weather.UpdateWorker;
+import com.example.weatherapp.model.weather.WeatherPreferences;
 import com.example.weatherapp.model.weather.WeatherValues;
 import com.example.weatherapp.ui.about.AboutFragment;
 import com.example.weatherapp.ui.feedback.FeedbackFragment;
+import com.example.weatherapp.ui.history.HistoryFragment;
 import com.example.weatherapp.ui.home.HomeFragment;
 import com.example.weatherapp.ui.settings.SettingsFragment;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -38,11 +42,15 @@ import com.squareup.picasso.Picasso;
 
 import java.util.concurrent.TimeUnit;
 
+import static com.example.weatherapp.model.constants.PreferencesNames.WEATHER_PREFERENCES;
+
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, SensorEventListener, SensorValuesHolder, IWorker {
 
     private MenuItem checkedMenuItem;
 
     private SensorValues sensorValues;
+    private SharedPreferences lastRequest;
+    private WeatherPreferences weatherPreferences;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,6 +62,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         Toolbar toolbar = initToolbar();
         initFab();
         initDrawer(toolbar);
+
+        initSharedPreferences();
+        loadLastWeatherRequest();
 
         //startPeriodicWorker();
     }
@@ -84,6 +95,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         drawer.addDrawerListener(toggle);
         toggle.syncState();
         navigationView.setNavigationItemSelectedListener(this);
+    }
+
+    private void initSharedPreferences() {
+        lastRequest = getSharedPreferences(WEATHER_PREFERENCES.getName(), Context.MODE_PRIVATE);
+        weatherPreferences = new WeatherPreferences(lastRequest);
+    }
+
+    private void loadLastWeatherRequest() {
+        weatherPreferences.load();
     }
 
     public void startOneTimeWorker() {
@@ -168,6 +188,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         switch (itemId) {
             case (R.id.nav_home):
                 replaceFragmentTransaction(new HomeFragment());
+                break;
+            case (R.id.nav_history):
+                replaceFragmentTransaction(new HistoryFragment());
                 break;
             case (R.id.nav_feedback):
                 replaceFragmentTransaction(new FeedbackFragment());

@@ -58,4 +58,10 @@ public class WeatherValues {
     public String getIconUrl() {
         return String.format("https://openweathermap.org/img/wn/%s@4x.png", iconName);
     }
+
+    public void setWeatherValues(String cityName, String countryName, float tempValue, String iconName) {
+        setCityName(cityName + ", " + countryName);
+        setTempValue(tempValue);
+        setIconName(iconName);
+    }
 }
