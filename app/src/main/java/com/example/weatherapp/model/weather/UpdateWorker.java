@@ -22,8 +22,8 @@ public class UpdateWorker extends Worker {
     public static final long WORKER_ONETIME_DELAY_SEC = 1;
     public static final long WORKER_PERIODIC_INTERVAL_MIN = 15;
 
-    private static final String KEY_API = "8a4f2513a83690c3e3741076c4029169";
-    private static String cityName = "London,uk";
+    private final String KEY_API = "8a4f2513a83690c3e3741076c4029169";
+    private String cityName = "London,uk";
 
     private static OpenWeather openWeather = null;
     private static volatile boolean isUpdated = false;
@@ -59,18 +59,11 @@ public class UpdateWorker extends Worker {
     }
 
     private void initRetrofit() {
-        // HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
-        // logging.setLevel(HttpLoggingInterceptor.Level.BODY);
-        //
-        // OkHttpClient.Builder httpClient = new OkHttpClient.Builder();
-        // httpClient.addInterceptor(logging);
-
         Log.d("DEBUG_UpdateWorker", "initRetrofit");
 
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl("https://api.openweathermap.org/")
                 .addConverterFactory(GsonConverterFactory.create())
-                // .client(httpClient.build())
                 .build();
         openWeather = retrofit.create(OpenWeather.class);
     }

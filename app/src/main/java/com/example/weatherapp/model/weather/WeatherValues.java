@@ -51,6 +51,10 @@ public class WeatherValues {
         }
     }
 
+    public float getTempCelsius() {
+        return tempValue + ABSOLUTE_ZERO_TEMP;
+    }
+
     public String getIconUrl() {
         return String.format("https://openweathermap.org/img/wn/%s@4x.png", iconName);
     }
