@@ -118,17 +118,14 @@ public class UpdateWorker extends Worker {
         String iconName = weatherRequest.getWeather().get(0).getIcon();
 
         WeatherValues.getInstance().setWeatherValues(cityName, countryName, tempValue, iconName);
-        Log.d("DEBUG_UpdateWorker", "setWeatherValues");
 
         weatherPreferences.save(cityName, countryName, tempValue, iconName);
-        Log.d("DEBUG_UpdateWorker", "weatherPreferences.save");
 
         sendWeatherToDatabase();
     }
 
     @SuppressLint("DefaultLocale")
     private void sendWeatherToDatabase() {
-        Log.d("DEBUG_UpdateWorker", "sendWeatherToDatabase");
 
         String currentDate = new DateBuilder().getDateString();
         String currentCity = WeatherValues.getInstance().getCityName();
