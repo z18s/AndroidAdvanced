@@ -97,6 +97,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         navigationView.setNavigationItemSelectedListener(this);
     }
 
+    // Shared Preferences
+
     private void initSharedPreferences() {
         lastRequest = getSharedPreferences(WEATHER_PREFERENCES.getName(), Context.MODE_PRIVATE);
         weatherPreferences = new WeatherPreferences(lastRequest);

@@ -38,11 +38,13 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.HistoryV
     @Override
     public void onBindViewHolder(HistoryViewHolder viewHolder, int position) {
         List<Weather> weatherList;
+        // Все записи БД или записи только для текущего города
         if (isFullData) {
             weatherList = dataSource.getWeather();
         } else {
             weatherList = dataSource.getWeatherByCity(WeatherValues.getInstance().getCityName());
         }
+
         Weather weather = weatherList.get(position);
         viewHolder.textWeatherDate.setText(weather.date);
         viewHolder.textWeatherCityName.setText(weather.cityName);
@@ -51,6 +53,7 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.HistoryV
 
     @Override
     public int getItemCount() {
+        // Счётчик всех записей БД или записей только текущего города
         if (isFullData) {
             return (int) dataSource.getCountWeather();
         } else {

@@ -52,10 +52,12 @@ public class HistoryFragment extends Fragment {
         Button buttonCurrentCityData = view.findViewById(R.id.history_current_city_button);
         Button buttonAllData = view.findViewById(R.id.history_all_button);
 
+        // Кнопка показа записей БД только для текущего города
         buttonCurrentCityData.setOnClickListener((v1) -> {
             initRecyclerView(view, false);
         });
 
+        // Кнопка показа всех записей БД
         buttonAllData.setOnClickListener((v2) -> {
             initRecyclerView(view, true);
         });

@@ -141,11 +141,11 @@ public class UpdateWorker extends Worker {
         WeatherDao weatherDao = App
                 .getInstance()
                 .getWeatherDao();
-
         Source dataSource = new Source(weatherDao);
 
         String lastDate = dataSource.getLastDate();
 
+        // Проверка на наличие в БД записи с текущей датой
         if (currentDate.equals(lastDate)) {
             String[] cities = dataSource.getCitiesByDate(lastDate);
             int i = 0;
@@ -156,13 +156,17 @@ public class UpdateWorker extends Worker {
                 }
             }
             if (i == 0) {
+                // Запись в БД, если текущая дата есть, но нет текущего города
                 dataSource.addWeather(weather);
-                Log.d("DEBUG_UpdateWorker", "dataSource.addWeather (city) - " +
+
+                Log.d("DEBUG_UpdateWorker", "sendWeatherToDatabase (city) - " +
                         weather.id + " - " + weather.date + " - " + weather.cityName + " - " + weather.temperature);
             }
         } else {
+            // Запись в БД, если текущей даты нет
             dataSource.addWeather(weather);
-            Log.d("DEBUG_UpdateWorker", "dataSource.addWeather (date) - " +
+
+            Log.d("DEBUG_UpdateWorker", "sendWeatherToDatabase (date) - " +
                     weather.id + " - " + weather.date + " - " + weather.cityName + " - " + weather.temperature);
         }
 
