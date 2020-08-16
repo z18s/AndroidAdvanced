@@ -11,10 +11,6 @@ public class App extends Application {
     private AppDatabase db;
     private final String DATABASE_NAME = "weather_database";
 
-    public static App getInstance() {
-        return instance;
-    }
-
     @Override
     public void onCreate() {
         super.onCreate();
@@ -24,6 +20,10 @@ public class App extends Application {
         db = Room.databaseBuilder(getApplicationContext(), AppDatabase.class, DATABASE_NAME)
                 .allowMainThreadQueries()
                 .build();
+    }
+
+    public static App getInstance() {
+        return instance;
     }
 
     public WeatherDao getWeatherDao() {
