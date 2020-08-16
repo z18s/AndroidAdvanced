@@ -1,5 +1,7 @@
 package com.example.weatherapp;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -27,9 +29,11 @@ import com.example.weatherapp.model.sensors.SensorValues;
 import com.example.weatherapp.model.sensors.SensorValuesHolder;
 import com.example.weatherapp.model.weather.IWorker;
 import com.example.weatherapp.model.weather.UpdateWorker;
+import com.example.weatherapp.model.weather.WeatherPreferences;
 import com.example.weatherapp.model.weather.WeatherValues;
 import com.example.weatherapp.ui.about.AboutFragment;
 import com.example.weatherapp.ui.feedback.FeedbackFragment;
+import com.example.weatherapp.ui.history.HistoryFragment;
 import com.example.weatherapp.ui.home.HomeFragment;
 import com.example.weatherapp.ui.settings.SettingsFragment;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -38,11 +42,15 @@ import com.squareup.picasso.Picasso;
 
 import java.util.concurrent.TimeUnit;
 
+import static com.example.weatherapp.model.constants.PreferencesNames.WEATHER_PREFERENCES;
+
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, SensorEventListener, SensorValuesHolder, IWorker {
 
     private MenuItem checkedMenuItem;
 
     private SensorValues sensorValues;
+    private SharedPreferences lastRequest;
+    private WeatherPreferences weatherPreferences;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,6 +62,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         Toolbar toolbar = initToolbar();
         initFab();
         initDrawer(toolbar);
+
+        initSharedPreferences();
+        loadLastWeatherRequest();
 
         //startPeriodicWorker();
     }
@@ -86,6 +97,19 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         navigationView.setNavigationItemSelectedListener(this);
     }
 
+    // Shared Preferences
+
+    private void initSharedPreferences() {
+        lastRequest = getSharedPreferences(WEATHER_PREFERENCES.getName(), Context.MODE_PRIVATE);
+        weatherPreferences = new WeatherPreferences(lastRequest);
+    }
+
+    private void loadLastWeatherRequest() {
+        weatherPreferences.load();
+    }
+
+    // Workers
+
     public void startOneTimeWorker() {
         OneTimeWorkRequest workRequest = new OneTimeWorkRequest
                 .Builder(UpdateWorker.class)
@@ -113,6 +137,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         cancelWorker(UpdateWorker.WORKER_PERIODIC_TAG);
     }
 
+    private void cancelWorker(String tag) {
+        WorkManager.getInstance(getApplicationContext()).getWorkInfosByTagLiveData(tag);
+    }
+
+    // Получение статуса Worker'а
+
     private void onWorkerUpdated(WorkRequest workRequest) {
         WorkManager.getInstance(getApplicationContext())
                 .getWorkInfoByIdLiveData(workRequest.getId())
@@ -127,6 +157,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     }
                 });
     }
+
+    // Обновление View после успешного завершения работы Worker'а
 
     public void updateValues() {
         String cityName = WeatherValues.getInstance().getCityName();
@@ -153,9 +185,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 .into((ImageView) findViewById(viewId));
     }
 
-    private void cancelWorker(String tag) {
-        WorkManager.getInstance(getApplicationContext()).getWorkInfosByTagLiveData(tag);
-    }
+    // Navigation Drawer
 
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
@@ -168,6 +198,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         switch (itemId) {
             case (R.id.nav_home):
                 replaceFragmentTransaction(new HomeFragment());
+                break;
+            case (R.id.nav_history):
+                replaceFragmentTransaction(new HistoryFragment());
                 break;
             case (R.id.nav_feedback):
                 replaceFragmentTransaction(new FeedbackFragment());
@@ -182,8 +215,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         return true;
     }
 
-    private void replaceFragmentTransaction(Fragment fragment) {
-        getSupportFragmentManager().beginTransaction().replace(R.id.nav_host_fragment, fragment).commit();
+    private void markSelectedMenuItem(MenuItem item) {
+        item.setChecked(true);
     }
 
     private void clearSelectedMenuItem(MenuItem checkedMenuItem) {
@@ -192,19 +225,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
-    private void markSelectedMenuItem(MenuItem item) {
-        item.setChecked(true);
-    }
-
-    @Override
-    public void onBackPressed() {
-        DrawerLayout drawer = findViewById(R.id.drawer_layout);
-        if (drawer.isDrawerOpen(GravityCompat.START)) {
-            drawer.closeDrawer(GravityCompat.START);
-        } else {
-            super.onBackPressed();
-        }
-    }
+    // Action Bar
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -220,6 +241,40 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             replaceFragmentTransaction(new SettingsFragment());
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    // Работа с фрагментами
+
+    private void replaceFragmentTransaction(Fragment fragment) {
+        getSupportFragmentManager().beginTransaction().replace(R.id.nav_host_fragment, fragment).commit();
+    }
+
+    // Работа с сенсорами
+
+    @Override
+    public void onSensorChanged(SensorEvent sensorEvent) {
+        sensorValues.update(sensorEvent);
+    }
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int i) {
+    }
+
+    @Override
+    public SensorValues getSensorValues() {
+        return sensorValues;
+    }
+
+    // Жизненный цикл Activity
+
+    @Override
+    public void onBackPressed() {
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
+        if (drawer.isDrawerOpen(GravityCompat.START)) {
+            drawer.closeDrawer(GravityCompat.START);
+        } else {
+            super.onBackPressed();
+        }
     }
 
     @Override
@@ -238,19 +293,5 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     protected void onDestroy() {
         super.onDestroy();
         cancelPeriodicWorker();
-    }
-
-    @Override
-    public void onSensorChanged(SensorEvent sensorEvent) {
-        sensorValues.update(sensorEvent);
-    }
-
-    @Override
-    public void onAccuracyChanged(Sensor sensor, int i) {
-    }
-
-    @Override
-    public SensorValues getSensorValues() {
-        return sensorValues;
     }
 }
